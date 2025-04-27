@@ -37,7 +37,6 @@ dependencies:
   firebase_core:
   firebase_auth:
   cloud_firestore:
-  webview_flutter_web:
   provider:
   flutter_sparkle:
   google_maps_flutter: ^2.6.0

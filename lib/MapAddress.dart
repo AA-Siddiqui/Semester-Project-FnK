@@ -5,24 +5,26 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:rms/main.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-import 'package:webview_flutter_web/webview_flutter_web.dart';
+// import 'package:webview_flutter_web/webview_flutter_web.dart';
 import 'authentication.dart';
 import 'firebase_options.dart';
 import 'menu.dart';
 
-void main() async{
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Initialize Firebase with the generated config
   await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,  // This connects the app to Firebase
+    options: DefaultFirebaseOptions
+        .currentPlatform, // This connects the app to Firebase
   );
 
-  if (kIsWeb) {
-    WebViewPlatform.instance = WebWebViewPlatform();
-  }
+  // if (kIsWeb) {
+  //   WebViewPlatform.instance = WebWebViewPlatform();
+  // }
 
-  runApp(MaterialApp(debugShowCheckedModeBanner:false ,home: GoogleMapEmbedPage()));
+  runApp(MaterialApp(
+      debugShowCheckedModeBanner: false, home: GoogleMapEmbedPage()));
 }
 
 class GoogleMapEmbedPage extends StatefulWidget {
@@ -33,7 +35,6 @@ class GoogleMapEmbedPage extends StatefulWidget {
 class _GoogleMapEmbedPageState extends State<GoogleMapEmbedPage> {
   late final WebViewController _controller;
   final TextEditingController _searchController = TextEditingController();
-
 
   //Add Address in a firebase
   // Future<void> addAddress() async {
@@ -74,22 +75,21 @@ class _GoogleMapEmbedPageState extends State<GoogleMapEmbedPage> {
     final user = FirebaseAuth.instance.currentUser;
 
     if (address.isNotEmpty && user != null) {
-      await FirebaseFirestore.instance.collection('addresses').doc(user.uid).set({
+      await FirebaseFirestore.instance
+          .collection('addresses')
+          .doc(user.uid)
+          .set({
         'uid': user.uid,
         'address': address,
       });
-
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Address added successfully!')),
       );
 
       _searchController.clear();
-
     }
   }
-
-
 
   String generateMapHTML(String location) {
     final locationEncoded = Uri.encodeComponent(location);
@@ -140,89 +140,99 @@ class _GoogleMapEmbedPageState extends State<GoogleMapEmbedPage> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
-    home: Scaffold(
-      // appBar: AppBar(
-      //   title: Text('Google Map Search'),
-      //   backgroundColor: Colors.red,
-      // ),
-      body: Stack(
-        children: [
-          Column(
+        debugShowCheckedModeBanner: false,
+        home: Scaffold(
+          // appBar: AppBar(
+          //   title: Text('Google Map Search'),
+          //   backgroundColor: Colors.red,
+          // ),
+          body: Stack(
             children: [
-              Expanded(child: WebViewWidget(controller: _controller)),
-              Container(
-                width: double.infinity, // or a specific width like 1400
-                height: 300,
-                decoration: BoxDecoration(
-                  color: Colors.orangeAccent,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(40),
-                    topRight: Radius.circular(40),
-                  ),
-                ),
-                child: Column(
-                  children: [
-                    SizedBox(height: 20),
-                    Text("Add Your Location", style: TextStyle(fontSize: 24, color: Colors.white)),
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: TextField(
-                        style: TextStyle(color: Colors.red),
-                        controller: _searchController,
-                        decoration: InputDecoration(
-                          filled: true,
-                          fillColor: Colors.white,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(20),
-                            borderSide: BorderSide.none,
-                          ),
-                          hintText: 'Search for a location....',
-                          suffixIcon: IconButton(
-                            icon: Icon(Icons.search,size: 28, color: Colors.red),
-                            onPressed: () {
-                              _searchLocation();
-                            },
+              Column(
+                children: [
+                  Expanded(child: WebViewWidget(controller: _controller)),
+                  Container(
+                    width: double.infinity, // or a specific width like 1400
+                    height: 300,
+                    decoration: BoxDecoration(
+                      color: Colors.orangeAccent,
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(40),
+                        topRight: Radius.circular(40),
+                      ),
+                    ),
+                    child: Column(
+                      children: [
+                        SizedBox(height: 20),
+                        Text("Add Your Location",
+                            style:
+                                TextStyle(fontSize: 24, color: Colors.white)),
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: TextField(
+                            style: TextStyle(color: Colors.red),
+                            controller: _searchController,
+                            decoration: InputDecoration(
+                              filled: true,
+                              fillColor: Colors.white,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(20),
+                                borderSide: BorderSide.none,
+                              ),
+                              hintText: 'Search for a location....',
+                              suffixIcon: IconButton(
+                                icon: Icon(Icons.search,
+                                    size: 28, color: Colors.red),
+                                onPressed: () {
+                                  _searchLocation();
+                                },
+                              ),
+                            ),
                           ),
                         ),
-                      ),
+                        ElevatedButton(
+                            onPressed: addAddress,
+                            child: Icon(
+                              Icons.add,
+                              color: Colors.red,
+                              size: 34,
+                              weight: 5,
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 40, vertical: 10),
+                            )),
+                        SizedBox(
+                          height: 23,
+                        ),
+                        ElevatedButton(
+                            onPressed: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => Menu()));
+                            },
+                            child: Text('Continue to Order',
+                                style: TextStyle(color: Colors.white)),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 80, vertical: 20),
+                            )),
+                      ],
                     ),
-                    ElevatedButton(
-                      onPressed: addAddress,
-                      child: Icon(Icons.add,color: Colors.red,size: 34,weight: 5,),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      padding: EdgeInsets.symmetric(horizontal: 40, vertical: 10),
-                    )
-                    ),
-                    SizedBox(height: 23,),
-                    ElevatedButton(
-                        onPressed: (){
-                          Navigator.push(context, MaterialPageRoute(builder: (context)=>Menu()));
-                        },
-                        child: Text('Continue to Order', style: TextStyle(color: Colors.white)),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          padding: EdgeInsets.symmetric(horizontal: 80, vertical: 20),
-                        )
-                    ),
-
-                  ],
-                ),
+                  ),
+                ],
               ),
             ],
           ),
-        ],
-      ),
-
-    )
-    );
+        ));
   }
 }
-
